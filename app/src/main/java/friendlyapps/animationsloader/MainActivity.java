@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
-
 import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
@@ -56,17 +55,23 @@ public class MainActivity extends AppCompatActivity {
 
         createDirectoryInExternalStorageIfNecessary(directoryName);
 
-        String[] assetsIWant = null;
+        String[] assetsIWant;
         assetsIWant = getAssets().list(directoryName);
 
-        for(String fileName : assetsIWant)
+        for(String fileName : assetsIWant) {
+
+            //if fileName cointains a dot it means it is a file, not directory
+
+            if(fileName.contains(".")){
                 copyFile(directoryName + java.io.File.separator + fileName);
+            }
+            else{
+                copyDirectoryFromAssetsToExternalStorage(directoryName +
+                        java.io.File.separator + fileName);
+            }
+        }
 
-
-            //getAssets().open("pictures/butterfly_red.png");
-
-
-
+        //getAssets().open("pictures/butterfly_red.png");
     }
 
     private void createDirectoryInExternalStorageIfNecessary(String directoryName){
@@ -77,7 +82,6 @@ public class MainActivity extends AppCompatActivity {
             newDirectory.mkdir();
             Log.i("Files", directoryName + " directory was created");
         }
-
     }
 
 
@@ -89,7 +93,6 @@ public class MainActivity extends AppCompatActivity {
             storageMainDirectory.mkdir();
             Log.i("Files", storageAppMainDirectoryName + " directory was created");
         }
-
     }
 
     private void copyFile(String destinationPath) throws IOException {
@@ -98,6 +101,7 @@ public class MainActivity extends AppCompatActivity {
         AssetFileDescriptor assetFileDescriptor;
         try {
             assetFileDescriptor = assetManager.openFd(destinationPath);
+
 
             // Create new file to copy into.
             File file = new File(Environment.getExternalStorageDirectory() + java.io.File.separator +
@@ -123,7 +127,4 @@ public class MainActivity extends AppCompatActivity {
                 outChannel.close();
         }
     }
-
-
-
 }
