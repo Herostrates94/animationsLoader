@@ -13,6 +13,7 @@ import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.channels.FileChannel;
 
 public class MainActivity extends AppCompatActivity {
@@ -102,29 +103,24 @@ public class MainActivity extends AppCompatActivity {
         try {
             assetFileDescriptor = assetManager.openFd(destinationPath);
 
+            InputStream in = assetFileDescriptor.createInputStream();
+            FileOutputStream out = new FileOutputStream(Environment.getExternalStorageDirectory() +
+                    java.io.File.separator + storageAppMainDirectoryName + File.separator + destinationPath);
+            byte[] buff = new byte[1024];
+            int read = 0;
 
-            // Create new file to copy into.
-            File file = new File(Environment.getExternalStorageDirectory() + java.io.File.separator +
-                    storageAppMainDirectoryName + File.separator + destinationPath);
-            file.createNewFile();
-            copyFdToFile(assetFileDescriptor.getFileDescriptor(), file);
+            try {
+                while ((read = in.read(buff)) > 0) {
+                    out.write(buff, 0, read);
+                }
+            } finally {
+                in.close();
+                out.close();
+            }
 
         } catch (IOException e) {
             Log.e("Files", destinationPath + " failed " + e.getMessage());
         }
     }
 
-    private static void copyFdToFile(FileDescriptor src, File dst) throws IOException {
-        FileChannel inChannel = new FileInputStream(src).getChannel();
-        FileChannel outChannel = new FileOutputStream(dst).getChannel();
-        try {
-            inChannel.transferTo(0, inChannel.size(), outChannel);
-            Log.i("Files", "File " + dst + " was copied");
-        } finally {
-            if (inChannel != null)
-                inChannel.close();
-            if (outChannel != null)
-                outChannel.close();
-        }
-    }
 }
