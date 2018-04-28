@@ -9,12 +9,9 @@ import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import java.io.File;
-import java.io.FileDescriptor;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.channels.FileChannel;
 
 public class MainActivity extends AppCompatActivity {
 
