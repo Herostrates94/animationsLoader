@@ -15,7 +15,7 @@ import friendlyapps.animationsloader.api.entities.PicturesContainer;
 
 public class StorageAnimationsManager {
 
-    private String storageAppMainDirectoryName = "animations";
+    private String storageAppMainDirectoryName = "happyApplicationsAnimations";
     private String picturesDirectoryName = "pictures";
 
     private File friendlyAppsDirectoryInExternalStorage;

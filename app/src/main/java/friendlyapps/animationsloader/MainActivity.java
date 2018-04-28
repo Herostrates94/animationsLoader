@@ -12,6 +12,13 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
+import friendlyapps.animationsloader.api.entities.PicturesContainer;
+import friendlyapps.animationsloader.api.managers.StorageAnimationsManager;
+import friendlyapps.animationsloader.database.DatabaseManager;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -45,6 +52,10 @@ public class MainActivity extends AppCompatActivity {
 
         TextView messageTextView = findViewById(R.id.textView);
         messageTextView.setText("Animations loaded. You can uninstall this app now.");
+
+
+        saveStorageStateToDatabase();
+        getStorageStateFromDatabase();
 
 
     }
@@ -119,5 +130,36 @@ public class MainActivity extends AppCompatActivity {
             Log.e("Files", destinationPath + " failed " + e.getMessage());
         }
     }
+
+
+    public void saveStorageStateToDatabase(){
+        int rows;
+        List<PicturesContainer> storage = StorageAnimationsManager.getInstance().getAllAnimationsFromStorage();
+
+        try {
+            rows = new DatabaseManager(this).picturesContainerDao.create(storage);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    public List<PicturesContainer> getStorageStateFromDatabase(){
+
+        List<PicturesContainer> storage = new ArrayList<>();
+
+        try {
+            storage =
+                    new DatabaseManager(this).picturesContainerDao.queryForAll();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return storage;
+
+    }
+
+
+
 
 }

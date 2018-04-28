@@ -1,15 +1,32 @@
 package friendlyapps.animationsloader.api.entities;
 
 
+import com.j256.ormlite.field.DatabaseField;
+import com.j256.ormlite.table.DatabaseTable;
+
+@DatabaseTable(tableName = "accounts")
 public class Picture {
 
+    @DatabaseField(generatedId=true)
+    private Integer id;
+
+    @DatabaseField
     private String name;
+
+    @DatabaseField(unique = true)
     private String path;
 
+    @DatabaseField
+    private int enabled = 1;
+
+    @DatabaseField(foreign = true)
+    private PicturesContainer picturesContainer;
+
+    public Picture(){}
 
     public Picture(String name, String path){
-        this.path = path;
-        this.name = name;
+        this.setPath(path);
+        this.setName(name);
     }
 
 
@@ -25,5 +42,33 @@ public class Picture {
 
     public void setPath(String path) {
         this.path = path;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public int getEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(int enabled) {
+        this.enabled = enabled;
+    }
+
+    public PicturesContainer getPicturesContainer() {
+        return picturesContainer;
+    }
+
+    public void setPicturesContainer(PicturesContainer picturesContainer) {
+        this.picturesContainer = picturesContainer;
     }
 }
