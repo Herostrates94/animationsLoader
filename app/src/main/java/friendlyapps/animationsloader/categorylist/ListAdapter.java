@@ -6,19 +6,23 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import java.sql.SQLException;
 import java.util.List;
 
 import friendlyapps.animationsloader.R;
+import friendlyapps.animationsloader.api.entities.Picture;
 import friendlyapps.animationsloader.api.entities.PicturesContainer;
 import friendlyapps.animationsloader.database.DatabaseHelper;
 
 public class ListAdapter extends ArrayAdapter<PicturesContainer> {
 
     DatabaseHelper databaseHelper;
+    List<PicturesContainer> items;
 
     public ListAdapter(Context context, int textViewResourceId) {
         super(context, textViewResourceId);
@@ -28,7 +32,7 @@ public class ListAdapter extends ArrayAdapter<PicturesContainer> {
 
     public ListAdapter(Context context, int resource, List<PicturesContainer> items) {
         super(context, resource, items);
-
+        this.items = items;
         databaseHelper = new DatabaseHelper(context);
     }
 
@@ -48,6 +52,7 @@ public class ListAdapter extends ArrayAdapter<PicturesContainer> {
         if (picturesContainer != null) {
             TextView tt1 = v.findViewById(R.id.categoryName);
             final CheckBox tt2 = v.findViewById(R.id.isEnabled);
+            final ImageButton deleteButton = v.findViewById(R.id.delete_btn);
 
             if (tt1 != null) {
                 tt1.setText(picturesContainer.getCategoryName());
@@ -84,10 +89,20 @@ public class ListAdapter extends ArrayAdapter<PicturesContainer> {
                 }
             });
 
+            deleteButton.setOnClickListener(new View.OnClickListener(){
+                @Override
+                public void onClick(View v) {
+
+                    try {
+                        databaseHelper.getPictureContainerDao().delete(picturesContainer);
+                        items.remove(picturesContainer);
+                        notifyDataSetChanged();
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
         }
-
-
-
 
         return v;
     }

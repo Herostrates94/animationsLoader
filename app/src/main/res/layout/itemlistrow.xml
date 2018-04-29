@@ -22,6 +22,28 @@
             android:layout_weight="1"
             android:height="20sp" />
 
+        <ImageButton
+            android:src="@drawable/icon_delete"
+            android:scaleType="fitXY"
+            android:background="@null"
+            android:layout_width="48dip"
+            android:layout_height="48dip"
+            android:id="@+id/delete_btn"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="5dp" />
+
+        <ImageButton
+            android:src="@drawable/icon_edit"
+            android:scaleType="fitXY"
+            android:background="@null"
+            android:layout_width="48dip"
+            android:layout_height="48dip"
+            android:id="@+id/edit_btn"
+            android:layout_toLeftOf="@id/delete_btn"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="10dp" />
+
 
 
     </TableRow>
