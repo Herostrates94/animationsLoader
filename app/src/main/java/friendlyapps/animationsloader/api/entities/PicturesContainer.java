@@ -31,6 +31,9 @@ public class PicturesContainer {
     @DatabaseField(unique = true)
     private String categoryName;
 
+    @DatabaseField
+    private Integer enabled = 1;
+
     @ForeignCollectionField(eager = true)
     private Collection<Picture> picturesInCategory = new ArrayList<> ();
 
@@ -64,4 +67,11 @@ public class PicturesContainer {
         this.categoryName = categoryName;
     }
 
+    public Integer getEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(Integer enabled) {
+        this.enabled = enabled;
+    }
 }

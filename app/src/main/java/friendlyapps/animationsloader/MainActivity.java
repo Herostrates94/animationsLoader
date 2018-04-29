@@ -1,17 +1,9 @@
 package friendlyapps.animationsloader;
 
-import android.content.res.AssetFileDescriptor;
-import android.content.res.AssetManager;
-import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
-import android.widget.TextView;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import android.widget.ListView;
+
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,18 +11,13 @@ import java.util.List;
 import friendlyapps.animationsloader.api.entities.Picture;
 import friendlyapps.animationsloader.api.entities.PicturesContainer;
 import friendlyapps.animationsloader.api.managers.StorageAnimationsManager;
+import friendlyapps.animationsloader.categorylist.ListAdapter;
 import friendlyapps.animationsloader.database.DatabaseHelper;
 
 public class MainActivity extends AppCompatActivity {
 
-    private final String storageAppMainDirectoryName = "happyApplicationsAnimations";
-    private final String picturesDirectoryName = "pictures";
-    private final String backgroundDirectoryName = "background";
-    private final String animationMovementsDirectoryName = "animationMovements";
-
-    private File storageMainDirectory;
-
     private DatabaseHelper databaseHelper;
+    private List<PicturesContainer> storage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,134 +25,78 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         databaseHelper = new DatabaseHelper(this);
+        new MyAssetsManager(getAssets()).loadAnimations();
+
+        checkExternalStorageAndDatabaseIntegrity();
+        storage = getStorageStateFromDatabase(); // getting state from db to acquire ids of resources as well
+        loadCategoriesToGUI();
 
     }
 
+    private void checkExternalStorageAndDatabaseIntegrity() {
 
-    public void loadAnimations(View v){
+        List<PicturesContainer> externalStorage = StorageAnimationsManager.getInstance().getAllAnimationsFromStorage();
+        List<PicturesContainer> databaseStorageState = getStorageStateFromDatabase();
 
-        prepareAppDirectoryInExternalStorage();
+        for (PicturesContainer storagePicturesContainer : externalStorage) {
 
-        try {
-            copyDirectoryFromAssetsToExternalStorage(picturesDirectoryName);
-            copyDirectoryFromAssetsToExternalStorage(animationMovementsDirectoryName);
-            copyDirectoryFromAssetsToExternalStorage(backgroundDirectoryName);
-            //colors?
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+            PicturesContainer databasePicturesContainer = getDatabasePicturesContainer(databaseStorageState, storagePicturesContainer);
 
-
-        TextView messageTextView = findViewById(R.id.textView);
-        messageTextView.setText("Animations loaded. You can uninstall this app now.");
-
-
-        testDatabase();
-
-
-
-    }
-
-    private void testDatabase(){
-
-        saveStorageStateToDatabase();
-        getStorageStateFromDatabase();
-
-    }
-
-
-
-
-    private void copyDirectoryFromAssetsToExternalStorage(String directoryName) throws IOException {
-
-        createDirectoryInExternalStorageIfNecessary(directoryName);
-
-        String[] assetsIWant;
-        assetsIWant = getAssets().list(directoryName);
-
-        for(String fileName : assetsIWant) {
-
-            //if fileName cointains a dot it means it is a file, not directory
-
-            if(fileName.contains(".")){
-                copyFile(directoryName + java.io.File.separator + fileName);
-            }
-            else{
-                copyDirectoryFromAssetsToExternalStorage(directoryName +
-                        java.io.File.separator + fileName);
-            }
-        }
-
-        //getAssets().open("pictures/butterfly_red.png");
-    }
-
-    private void createDirectoryInExternalStorageIfNecessary(String directoryName){
-
-        File newDirectory = new File(storageMainDirectory, directoryName);
-
-        if (!newDirectory.exists()) {
-            newDirectory.mkdir();
-            Log.i("Files", directoryName + " directory was created");
-        }
-    }
-
-
-    private void prepareAppDirectoryInExternalStorage(){
-
-        storageMainDirectory = new File(Environment.getExternalStorageDirectory(), storageAppMainDirectoryName);
-
-        if (!storageMainDirectory.exists()) {
-            storageMainDirectory.mkdir();
-            Log.i("Files", storageAppMainDirectoryName + " directory was created");
-        }
-    }
-
-    private void copyFile(String destinationPath) throws IOException {
-
-        AssetManager assetManager = getAssets();
-        AssetFileDescriptor assetFileDescriptor;
-        try {
-            assetFileDescriptor = assetManager.openFd(destinationPath);
-
-            InputStream in = assetFileDescriptor.createInputStream();
-            FileOutputStream out = new FileOutputStream(Environment.getExternalStorageDirectory() +
-                    java.io.File.separator + storageAppMainDirectoryName + File.separator + destinationPath);
-            byte[] buff = new byte[1024];
-            int read = 0;
-
-            try {
-                while ((read = in.read(buff)) > 0) {
-                    out.write(buff, 0, read);
+            // create record for container if it does not exist
+            if (databasePicturesContainer == null) {
+                try {
+                    databaseHelper.getPictureContainerDao().create(storagePicturesContainer);
+                } catch (SQLException e) {
+                    e.printStackTrace();
                 }
-            } finally {
-                in.close();
-                out.close();
             }
 
-        } catch (IOException e) {
-            Log.e("Files", destinationPath + " failed " + e.getMessage());
-        }
-    }
-
-
-    public void saveStorageStateToDatabase(){
-        List<PicturesContainer> storage = StorageAnimationsManager.getInstance().getAllAnimationsFromStorage();
-
-        try {
-            for(PicturesContainer picturesContainer : storage) {
-
-                databaseHelper.getPictureContainerDao().createOrUpdate(picturesContainer);
-
-                for(Picture picture : picturesContainer.getPicturesInCategory()){
-                    databaseHelper.getPictureDao().createOrUpdate(picture);
+            // create records for pictures in the container if they are not exist
+            for (Picture picture : storagePicturesContainer.getPicturesInCategory()) {
+                if (! isPictureInDatabase(storagePicturesContainer, picture)) {
+                    try {
+                        databaseHelper.getPictureDao().create(picture);
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
                 }
-
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
         }
     }
 
+    PicturesContainer getDatabasePicturesContainer(List<PicturesContainer> datatbaseStorageState, PicturesContainer picturesContainer){
+
+        for(PicturesContainer picturesContainer1 : datatbaseStorageState){
+            if(picturesContainer1.getCategoryName().equals(picturesContainer.getCategoryName())){
+                return picturesContainer1;
+            }
+        }
+        return null;
+    }
+
+    boolean isPictureInDatabase(PicturesContainer picturesContainer, Picture picture){
+
+        for(Picture picture1 : picturesContainer.getPicturesInCategory()){
+            if(picture1.getPath().equals(picture1.getPath())){
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+
+
+    private void loadCategoriesToGUI(){
+
+        ListView yourListView = (ListView) findViewById(R.id.itemListView);
+
+        // get data from the table by the ListAdapter
+        ListAdapter customAdapter = new ListAdapter(this, R.layout.itemlistrow, storage);
+
+        yourListView.setAdapter(customAdapter);
+
+    }
 
     public List<PicturesContainer> getStorageStateFromDatabase(){
 
@@ -182,8 +113,6 @@ public class MainActivity extends AppCompatActivity {
         return storage;
 
     }
-
-
 
 
 }
