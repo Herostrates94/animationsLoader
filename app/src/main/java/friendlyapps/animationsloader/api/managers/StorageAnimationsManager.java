@@ -61,7 +61,7 @@ public class StorageAnimationsManager {
                     File[] pictureFilesInDirectory = directoryWithPictures.listFiles();
 
                     for (File pictureFile : pictureFilesInDirectory) {
-                        picturesContainer.addPicture(new Picture(pictureFile.getName(), pictureFile.getAbsolutePath()));
+                        picturesContainer.addPicture(new Picture(pictureFile.getName(), pictureFile.getAbsolutePath(), picturesContainer));
                     }
 
                     externalStorageAssets.add(picturesContainer);

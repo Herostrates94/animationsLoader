@@ -19,14 +19,15 @@ public class Picture {
     @DatabaseField
     private int enabled = 1;
 
-    @DatabaseField(foreign = true)
+    @DatabaseField(foreign = true, foreignAutoRefresh= true)
     private PicturesContainer picturesContainer;
 
     public Picture(){}
 
-    public Picture(String name, String path){
+    public Picture(String name, String path, PicturesContainer picturesContainer){
         this.setPath(path);
         this.setName(name);
+        this.picturesContainer = picturesContainer;
     }
 
 

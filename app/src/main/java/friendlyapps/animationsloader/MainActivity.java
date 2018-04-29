@@ -16,9 +16,10 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import friendlyapps.animationsloader.api.entities.Picture;
 import friendlyapps.animationsloader.api.entities.PicturesContainer;
 import friendlyapps.animationsloader.api.managers.StorageAnimationsManager;
-import friendlyapps.animationsloader.database.DatabaseManager;
+import friendlyapps.animationsloader.database.DatabaseHelper;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -29,10 +30,15 @@ public class MainActivity extends AppCompatActivity {
 
     private File storageMainDirectory;
 
+    private DatabaseHelper databaseHelper;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        databaseHelper = new DatabaseHelper(this);
+
     }
 
 
@@ -54,11 +60,21 @@ public class MainActivity extends AppCompatActivity {
         messageTextView.setText("Animations loaded. You can uninstall this app now.");
 
 
-        saveStorageStateToDatabase();
-        getStorageStateFromDatabase();
+        testDatabase();
+
 
 
     }
+
+    private void testDatabase(){
+
+        saveStorageStateToDatabase();
+        getStorageStateFromDatabase();
+
+    }
+
+
+
 
     private void copyDirectoryFromAssetsToExternalStorage(String directoryName) throws IOException {
 
@@ -133,11 +149,18 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void saveStorageStateToDatabase(){
-        int rows;
         List<PicturesContainer> storage = StorageAnimationsManager.getInstance().getAllAnimationsFromStorage();
 
         try {
-            rows = new DatabaseManager(this).picturesContainerDao.create(storage);
+            for(PicturesContainer picturesContainer : storage) {
+
+                databaseHelper.getPictureContainerDao().createOrUpdate(picturesContainer);
+
+                for(Picture picture : picturesContainer.getPicturesInCategory()){
+                    databaseHelper.getPictureDao().createOrUpdate(picture);
+                }
+
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -149,8 +172,9 @@ public class MainActivity extends AppCompatActivity {
         List<PicturesContainer> storage = new ArrayList<>();
 
         try {
-            storage =
-                    new DatabaseManager(this).picturesContainerDao.queryForAll();
+
+            storage = databaseHelper.getPictureContainerDao().queryForAll();
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
