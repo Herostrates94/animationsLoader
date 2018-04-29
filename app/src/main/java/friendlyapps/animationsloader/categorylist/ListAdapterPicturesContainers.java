@@ -7,27 +7,31 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.ImageButton;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
+import friendlyapps.animationsloader.MainActivity;
 import friendlyapps.animationsloader.R;
+import friendlyapps.animationsloader.api.entities.Picture;
 import friendlyapps.animationsloader.api.entities.PicturesContainer;
 import friendlyapps.animationsloader.database.DatabaseHelper;
 
-public class ListAdapter extends ArrayAdapter<PicturesContainer> {
+public class ListAdapterPicturesContainers extends ArrayAdapter<PicturesContainer> {
 
     DatabaseHelper databaseHelper;
     List<PicturesContainer> items;
 
-    public ListAdapter(Context context, int textViewResourceId) {
+    public ListAdapterPicturesContainers(Context context, int textViewResourceId) {
         super(context, textViewResourceId);
 
         databaseHelper = new DatabaseHelper(context);
     }
 
-    public ListAdapter(Context context, int resource, List<PicturesContainer> items) {
+    public ListAdapterPicturesContainers(Context context, int resource, List<PicturesContainer> items) {
         super(context, resource, items);
         this.items = items;
         databaseHelper = new DatabaseHelper(context);
@@ -41,7 +45,7 @@ public class ListAdapter extends ArrayAdapter<PicturesContainer> {
         if (v == null) {
             LayoutInflater vi;
             vi = LayoutInflater.from(getContext());
-            v = vi.inflate(R.layout.itemlistrow, null);
+            v = vi.inflate(R.layout.categoryrow, null);
         }
 
         final PicturesContainer picturesContainer = getItem(position);
@@ -105,7 +109,7 @@ public class ListAdapter extends ArrayAdapter<PicturesContainer> {
                 @Override
                 public void onClick(View v) {
 
-                    loadPicturesToRightPanel(picturesContainer);
+                    loadPicturesToRightPanel(picturesContainer, v);
 
                 }
             });
@@ -114,7 +118,17 @@ public class ListAdapter extends ArrayAdapter<PicturesContainer> {
         return v;
     }
 
-    private void loadPicturesToRightPanel(PicturesContainer picturesContainer){
+    private void loadPicturesToRightPanel(PicturesContainer picturesContainer, View v){
+
+        MainActivity mainActivity = (MainActivity) getContext();
+
+        ListView yourListView = mainActivity.findViewById(R.id.newList);
+
+        // get data from the table by the ListAdapter
+        ListAdapterPictures customAdapter =
+                new ListAdapterPictures(getContext(), R.layout.picturerow, new ArrayList<>(picturesContainer.getPicturesInCategory()));
+
+        yourListView.setAdapter(customAdapter);
 
     }
 

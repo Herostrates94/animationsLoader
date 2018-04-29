@@ -10,14 +10,28 @@
 
     <ListView
         android:id="@+id/itemListView"
-        android:layout_width="356dp"
+        android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginBottom="36dp"
+        android:layout_marginEnd="57dp"
         android:layout_marginLeft="47dp"
+        android:layout_marginRight="57dp"
         android:layout_marginStart="47dp"
         android:layout_marginTop="36dp"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/newList"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ListView
+        android:id="@+id/newList"
+        android:layout_width="0dp"
+        android:layout_height="494dp"
+        android:layout_marginEnd="137dp"
+        android:layout_marginRight="137dp"
+        android:layout_marginTop="36dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/itemListView"
         app:layout_constraintTop_toTopOf="parent" />
 
 </android.support.constraint.ConstraintLayout>

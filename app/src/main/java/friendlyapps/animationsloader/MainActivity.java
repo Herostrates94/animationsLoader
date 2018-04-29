@@ -2,6 +2,7 @@ package friendlyapps.animationsloader;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.ListView;
 
 import java.sql.SQLException;
@@ -11,7 +12,7 @@ import java.util.List;
 import friendlyapps.animationsloader.api.entities.Picture;
 import friendlyapps.animationsloader.api.entities.PicturesContainer;
 import friendlyapps.animationsloader.api.managers.StorageAnimationsManager;
-import friendlyapps.animationsloader.categorylist.ListAdapter;
+import friendlyapps.animationsloader.categorylist.ListAdapterPicturesContainers;
 import friendlyapps.animationsloader.database.DatabaseHelper;
 
 public class MainActivity extends AppCompatActivity {
@@ -46,6 +47,7 @@ public class MainActivity extends AppCompatActivity {
             if (databasePicturesContainer == null) {
                 try {
                     databaseHelper.getPictureContainerDao().create(storagePicturesContainer);
+                    Log.i("Animation", storagePicturesContainer.getCategoryName() + " record added to database");
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
@@ -53,9 +55,10 @@ public class MainActivity extends AppCompatActivity {
 
             // create records for pictures in the container if they are not exist
             for (Picture picture : storagePicturesContainer.getPicturesInCategory()) {
-                if (! isPictureInDatabase(storagePicturesContainer, picture)) {
+                if (! isPictureInDatabase(databasePicturesContainer, picture)) {
                     try {
                         databaseHelper.getPictureDao().create(picture);
+                        Log.i("Animation", picture.getName() + " record added to database");
                     } catch (SQLException e) {
                         e.printStackTrace();
                     }
@@ -76,8 +79,11 @@ public class MainActivity extends AppCompatActivity {
 
     boolean isPictureInDatabase(PicturesContainer picturesContainer, Picture picture){
 
+        if(picturesContainer == null)
+            return false;
+
         for(Picture picture1 : picturesContainer.getPicturesInCategory()){
-            if(picture1.getPath().equals(picture1.getPath())){
+            if(picture.getPath().equals(picture1.getPath())){
                 return true;
             }
         }
@@ -92,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
         ListView yourListView = (ListView) findViewById(R.id.itemListView);
 
         // get data from the table by the ListAdapter
-        ListAdapter customAdapter = new ListAdapter(this, R.layout.itemlistrow, storage);
+        ListAdapterPicturesContainers customAdapter = new ListAdapterPicturesContainers(this, R.layout.categoryrow, storage);
 
         yourListView.setAdapter(customAdapter);
 
