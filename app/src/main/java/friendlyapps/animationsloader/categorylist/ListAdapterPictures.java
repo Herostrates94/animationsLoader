@@ -20,6 +20,7 @@ import java.util.List;
 
 import friendlyapps.animationsloader.R;
 import friendlyapps.animationsloader.api.entities.Picture;
+import friendlyapps.animationsloader.api.entities.PicturesContainer;
 import friendlyapps.animationsloader.api.managers.StorageAnimationsManager;
 import friendlyapps.animationsloader.database.DatabaseHelper;
 
@@ -27,6 +28,7 @@ public class ListAdapterPictures extends ArrayAdapter<Picture> {
 
     DatabaseHelper databaseHelper;
     List<Picture> items;
+    PicturesContainer picturesContainer;
 
     public ListAdapterPictures(Context context, int textViewResourceId) {
         super(context, textViewResourceId);
@@ -34,10 +36,11 @@ public class ListAdapterPictures extends ArrayAdapter<Picture> {
         databaseHelper = new DatabaseHelper(context);
     }
 
-    public ListAdapterPictures(Context context, int resource, List<Picture> items) {
+    public ListAdapterPictures(Context context, int resource, List<Picture> items, PicturesContainer picturesContainer) {
         super(context, resource, items);
         this.items = items;
         databaseHelper = new DatabaseHelper(context);
+        this.picturesContainer = picturesContainer;
     }
 
     @Override
@@ -98,6 +101,7 @@ public class ListAdapterPictures extends ArrayAdapter<Picture> {
                         StorageAnimationsManager.getInstance().deletePictureFromStorage(picture);
                         databaseHelper.getPictureDao().delete(picture);
                         items.remove(picture);
+                        picturesContainer.getPicturesInCategory().remove(picture);
                         notifyDataSetChanged();
                     } catch (SQLException e) {
                         e.printStackTrace();

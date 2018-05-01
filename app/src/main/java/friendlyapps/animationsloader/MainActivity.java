@@ -3,6 +3,7 @@ package friendlyapps.animationsloader;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.ListView;
 
 import java.sql.SQLException;
@@ -18,6 +19,9 @@ import friendlyapps.animationsloader.database.DatabaseHelper;
 public class MainActivity extends AppCompatActivity {
 
     private DatabaseHelper databaseHelper;
+    private MyAssetsManager myAssetsManager;
+
+
     private List<PicturesContainer> storage;
 
     @Override
@@ -26,7 +30,11 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         databaseHelper = new DatabaseHelper(this);
-        new MyAssetsManager(getAssets()).loadAnimations();
+        myAssetsManager = new MyAssetsManager(getAssets());
+
+        if(! myAssetsManager.wereAnimationsLoadedToStorageSomewhenInThePast()) {
+            myAssetsManager.copyAnimationsFromAssetsToStorage();
+        }
 
         checkExternalStorageAndDatabaseIntegrity();
         storage = getStorageStateFromDatabase(); // getting state from db to acquire ids of resources as well
@@ -52,6 +60,11 @@ public class MainActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
             }
+            else{
+                // pictures which will be added to db below are connected with storagePictureContainer,
+                // so it needs id
+                storagePicturesContainer.setId(databasePicturesContainer.getId());
+            }
 
             List<Picture> picturesFromDatabase = null;
             try {
@@ -76,11 +89,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    PicturesContainer getDatabasePicturesContainer(List<PicturesContainer> datatbaseStorageState, PicturesContainer picturesContainer){
+    PicturesContainer getDatabasePicturesContainer(List<PicturesContainer> datatbaseStorageState, PicturesContainer picturesContainerFromStorage){
 
-        for(PicturesContainer picturesContainer1 : datatbaseStorageState){
-            if(picturesContainer1.getCategoryName().equals(picturesContainer.getCategoryName())){
-                return picturesContainer1;
+        for(PicturesContainer picturesContainerFromDatabase : datatbaseStorageState){
+            if(picturesContainerFromDatabase.getCategoryName().equals(picturesContainerFromStorage.getCategoryName())){
+                return picturesContainerFromDatabase;
             }
         }
         return null;
@@ -127,6 +140,13 @@ public class MainActivity extends AppCompatActivity {
 
         return storage;
 
+    }
+
+    public void restoreDefaultStorage(View v){
+        myAssetsManager.copyAnimationsFromAssetsToStorage();
+        checkExternalStorageAndDatabaseIntegrity();
+        storage = getStorageStateFromDatabase(); // getting state from db to acquire ids of resources as well
+        loadCategoriesToGUI();
     }
 
 

@@ -133,7 +133,7 @@ public class ListAdapterPicturesContainers extends ArrayAdapter<PicturesContaine
 
         // get data from the table by the ListAdapter
         ListAdapterPictures customAdapter =
-                new ListAdapterPictures(getContext(), R.layout.picturerow, new ArrayList<>(picturesContainer.getPicturesInCategory()));
+                new ListAdapterPictures(getContext(), R.layout.picturerow, new ArrayList<>(picturesContainer.getPicturesInCategory()), picturesContainer);
 
         yourListView.setAdapter(customAdapter);
 

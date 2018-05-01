@@ -30,7 +30,7 @@ public class MyAssetsManager {
 
     }
 
-    public void loadAnimations(){
+    public void copyAnimationsFromAssetsToStorage(){
 
         prepareAppDirectoryInExternalStorage();
 
@@ -91,6 +91,19 @@ public class MyAssetsManager {
             storageMainDirectory.mkdir();
             Log.i("Files", storageAppMainDirectoryName + " directory was created");
         }
+    }
+
+    boolean wereAnimationsLoadedToStorageSomewhenInThePast(){
+
+        storageMainDirectory = new File(Environment.getExternalStorageDirectory(), storageAppMainDirectoryName);
+
+        if (storageMainDirectory.exists()) {
+            return true;
+        }
+        else{
+            return false;
+        }
+
     }
 
     private void copyFile(String destinationPath) throws IOException {
