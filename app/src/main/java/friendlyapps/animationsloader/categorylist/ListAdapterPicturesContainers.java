@@ -18,6 +18,7 @@ import friendlyapps.animationsloader.MainActivity;
 import friendlyapps.animationsloader.R;
 import friendlyapps.animationsloader.api.entities.Picture;
 import friendlyapps.animationsloader.api.entities.PicturesContainer;
+import friendlyapps.animationsloader.api.managers.StorageAnimationsManager;
 import friendlyapps.animationsloader.database.DatabaseHelper;
 
 public class ListAdapterPicturesContainers extends ArrayAdapter<PicturesContainer> {
@@ -96,6 +97,12 @@ public class ListAdapterPicturesContainers extends ArrayAdapter<PicturesContaine
                 public void onClick(View v) {
 
                     try {
+                        StorageAnimationsManager.getInstance().deletePicturesContainerFromStorage(picturesContainer);
+
+                        for(Picture picture : picturesContainer.getPicturesInCategory()){
+                            databaseHelper.getPictureDao().delete(picture);
+                        }
+
                         databaseHelper.getPictureContainerDao().delete(picturesContainer);
                         items.remove(picturesContainer);
                         notifyDataSetChanged();

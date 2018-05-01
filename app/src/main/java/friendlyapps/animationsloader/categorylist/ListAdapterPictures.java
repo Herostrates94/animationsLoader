@@ -20,7 +20,7 @@ import java.util.List;
 
 import friendlyapps.animationsloader.R;
 import friendlyapps.animationsloader.api.entities.Picture;
-import friendlyapps.animationsloader.api.entities.PicturesContainer;
+import friendlyapps.animationsloader.api.managers.StorageAnimationsManager;
 import friendlyapps.animationsloader.database.DatabaseHelper;
 
 public class ListAdapterPictures extends ArrayAdapter<Picture> {
@@ -95,6 +95,7 @@ public class ListAdapterPictures extends ArrayAdapter<Picture> {
                 public void onClick(View v) {
 
                     try {
+                        StorageAnimationsManager.getInstance().deletePictureFromStorage(picture);
                         databaseHelper.getPictureDao().delete(picture);
                         items.remove(picture);
                         notifyDataSetChanged();

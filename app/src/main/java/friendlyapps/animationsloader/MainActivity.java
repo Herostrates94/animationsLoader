@@ -53,6 +53,15 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
 
+            List<Picture> picturesFromDatabase = null;
+            try {
+                picturesFromDatabase = databaseHelper.getPictureDao().queryForAll();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+
+            System.out.println(picturesFromDatabase.toString());
+
             // create records for pictures in the container if they are not exist
             for (Picture picture : storagePicturesContainer.getPicturesInCategory()) {
                 if (! isPictureInDatabase(databasePicturesContainer, picture)) {

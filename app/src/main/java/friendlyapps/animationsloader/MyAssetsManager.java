@@ -36,9 +36,11 @@ public class MyAssetsManager {
 
         try {
             copyDirectoryFromAssetsToExternalStorage(picturesDirectoryName);
-            copyDirectoryFromAssetsToExternalStorage(animationMovementsDirectoryName);
-            copyDirectoryFromAssetsToExternalStorage(backgroundDirectoryName);
-            //colors?
+
+            // prepare directory for user's pictures
+            createDirectoryInExternalStorageIfNecessary(picturesDirectoryName +
+                    java.io.File.separator + "twoje");
+
         } catch (IOException e) {
             e.printStackTrace();
         }

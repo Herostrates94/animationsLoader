@@ -113,4 +113,55 @@ public class StorageAnimationsManager {
     public void setPicturesFromExternalStorage(List<PicturesContainer> picturesFromExternalStorage) {
         this.picturesFromExternalStorage = picturesFromExternalStorage;
     }
+
+    public void deletePictureFromStorage(Picture picture){
+
+        try{
+
+            File file = new File(picture.getPath());
+
+            if(file.delete()){
+                Log.i("Animations", file.getName() + " was deleted");
+                System.out.println(file.getName() + " is deleted!");
+            }else{
+                Log.i("Animations", file.getName() + " was not deleted");
+            }
+
+        }catch(Exception e){
+
+            e.printStackTrace();
+
+        }
+
+    }
+
+    public void deletePicturesContainerFromStorage(PicturesContainer picturesContainer) {
+
+        // delete pictures in the folder
+        for(Picture picture : picturesContainer.getPicturesInCategory()){
+            deletePictureFromStorage(picture);
+        }
+
+
+        // delete empty folder
+        try{
+
+            File file = new File(friendlyAppsDirectoryInExternalStorage,
+                    picturesDirectoryName + "/" + picturesContainer.getCategoryName());
+
+            if(file.delete()){
+                Log.i("Animations", file.getName() + " was deleted");
+                System.out.println(file.getName() + " is deleted!");
+            }else{
+                Log.i("Animations", file.getName() + " was not deleted");
+            }
+
+        }catch(Exception e){
+
+            e.printStackTrace();
+
+        }
+    }
+
+
 }
