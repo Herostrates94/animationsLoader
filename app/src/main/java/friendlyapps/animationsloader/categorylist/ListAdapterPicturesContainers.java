@@ -116,7 +116,7 @@ public class ListAdapterPicturesContainers extends ArrayAdapter<PicturesContaine
                 @Override
                 public void onClick(View v) {
 
-                    loadPicturesToRightPanel(picturesContainer, v);
+                    loadPicturesToRightPanel(picturesContainer);
 
                 }
             });
@@ -125,7 +125,7 @@ public class ListAdapterPicturesContainers extends ArrayAdapter<PicturesContaine
         return v;
     }
 
-    private void loadPicturesToRightPanel(PicturesContainer picturesContainer, View v){
+    private void loadPicturesToRightPanel(PicturesContainer picturesContainer){
 
         MainActivity mainActivity = (MainActivity) getContext();
 
@@ -136,6 +136,24 @@ public class ListAdapterPicturesContainers extends ArrayAdapter<PicturesContaine
                 new ListAdapterPictures(getContext(), R.layout.picturerow, new ArrayList<>(picturesContainer.getPicturesInCategory()), picturesContainer);
 
         yourListView.setAdapter(customAdapter);
+        mainActivity.setCurrentPicturesContainer(picturesContainer);
+        makeAnimationTypesCheckBoxesVisible(mainActivity);
+
+    }
+
+    void makeAnimationTypesCheckBoxesVisible(MainActivity mainActivity){
+
+        final CheckBox checkBoxLEFT_TO_RIGHT = mainActivity.findViewById(R.id.checkBoxLEFT_TO_RIGHT);
+        final CheckBox checkBoxSPIRAL = mainActivity.findViewById(R.id.checkBoxSPIRAL);
+        final CheckBox checkBoxUP_DOWN = mainActivity.findViewById(R.id.checkBoxUP_DOWN);
+
+        checkBoxLEFT_TO_RIGHT.setVisibility(View.VISIBLE);
+        checkBoxSPIRAL.setVisibility(View.VISIBLE);
+        checkBoxUP_DOWN.setVisibility(View.VISIBLE);
+
+        checkBoxLEFT_TO_RIGHT.setChecked(mainActivity.getCurrentPicturesContainer().getAnimationTypes().contains("LEFT_TO_RIGHT"));
+        checkBoxSPIRAL.setChecked(mainActivity.getCurrentPicturesContainer().getAnimationTypes().contains("SPIRAL"));
+        checkBoxUP_DOWN.setChecked(mainActivity.getCurrentPicturesContainer().getAnimationTypes().contains("UP_DOWN"));
 
     }
 

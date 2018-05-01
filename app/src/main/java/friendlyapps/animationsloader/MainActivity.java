@@ -4,6 +4,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.CheckBox;
 import android.widget.ListView;
 
 import java.sql.SQLException;
@@ -20,7 +21,7 @@ public class MainActivity extends AppCompatActivity {
 
     private DatabaseHelper databaseHelper;
     private MyAssetsManager myAssetsManager;
-
+    private PicturesContainer currentPicturesContainer;
 
     private List<PicturesContainer> storage;
 
@@ -28,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        setCheckboxEventListeners();
 
         databaseHelper = new DatabaseHelper(this);
         myAssetsManager = new MyAssetsManager(getAssets());
@@ -39,6 +41,61 @@ public class MainActivity extends AppCompatActivity {
         checkExternalStorageAndDatabaseIntegrity();
         storage = getStorageStateFromDatabase(); // getting state from db to acquire ids of resources as well
         loadCategoriesToGUI();
+
+    }
+
+    private void setCheckboxEventListeners(){
+
+        final CheckBox checkBoxLEFT_TO_RIGHT = findViewById(R.id.checkBoxLEFT_TO_RIGHT);
+        final CheckBox checkBoxSPIRAL = findViewById(R.id.checkBoxSPIRAL);
+        final CheckBox checkBoxUP_DOWN = findViewById(R.id.checkBoxUP_DOWN);
+
+        checkBoxLEFT_TO_RIGHT.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                updateAnimationTypes();
+            }
+        });
+
+        checkBoxSPIRAL.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                updateAnimationTypes();
+            }
+        });
+
+        checkBoxUP_DOWN.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                updateAnimationTypes();
+            }
+        });
+    }
+
+    void updateAnimationTypes(){
+
+        String animationTypes = "";
+
+        final CheckBox checkBoxLEFT_TO_RIGHT = findViewById(R.id.checkBoxLEFT_TO_RIGHT);
+        final CheckBox checkBoxSPIRAL = findViewById(R.id.checkBoxSPIRAL);
+        final CheckBox checkBoxUP_DOWN = findViewById(R.id.checkBoxUP_DOWN);
+
+        if(checkBoxLEFT_TO_RIGHT.isChecked()){
+            animationTypes += "LEFT_TO_RIGHT;";
+        }
+        if(checkBoxSPIRAL.isChecked()){
+            animationTypes += "SPIRAL;";
+        }
+        if(checkBoxUP_DOWN.isChecked()){
+            animationTypes += "UP_DOWN";
+        }
+
+        currentPicturesContainer.setAnimationTypes(animationTypes);
+        try {
+            databaseHelper.getPictureContainerDao().update(currentPicturesContainer);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
 
     }
 
@@ -150,4 +207,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    public PicturesContainer getCurrentPicturesContainer() {
+        return currentPicturesContainer;
+    }
+
+    public void setCurrentPicturesContainer(PicturesContainer currentPicturesContainer) {
+        this.currentPicturesContainer = currentPicturesContainer;
+    }
 }

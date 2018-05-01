@@ -34,6 +34,9 @@ public class PicturesContainer {
     @DatabaseField
     private Integer enabled = 1;
 
+    @DatabaseField
+    private String animationTypes = "LEFT_TO_RIGHT;SPIRAL;UP_DOWN";
+
     @ForeignCollectionField(eager = true)
     private Collection<Picture> picturesInCategory = new ArrayList<> ();
 
@@ -73,5 +76,13 @@ public class PicturesContainer {
 
     public void setEnabled(Integer enabled) {
         this.enabled = enabled;
+    }
+
+    public String getAnimationTypes() {
+        return animationTypes;
+    }
+
+    public void setAnimationTypes(String animationTypes) {
+        this.animationTypes = animationTypes;
     }
 }
